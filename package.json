@@ -1,0 +1,13 @@
+{
+  "name": "lina",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "workspaces": {
+    "packages": ["packages/*"],
+    "catalog": {
+      "@types/bun": "latest",
+      "typescript": "^6.0.0-beta"
+    }
+  }
+}
