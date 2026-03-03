@@ -1,6 +1,5 @@
 {
   "name": "lina",
-  "module": "index.ts",
   "type": "module",
   "private": true,
   "workspaces": {
