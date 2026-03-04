@@ -9,7 +9,8 @@
       "typescript": "^6.0.0-beta",
       "elysia": "latest",
       "@elysiajs/bearer": "^1.4.3",
-      "@elysiajs/cors": "^1.4.1"
+      "@elysiajs/cors": "^1.4.1",
+      "@elysiajs/cron": "^1.4.1"
     }
   }
 }
