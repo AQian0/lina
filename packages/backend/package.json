@@ -9,7 +9,8 @@
     "elysia": "catalog:",
     "@elysiajs/bearer": "catalog:",
     "@elysiajs/cors": "catalog:",
-    "@elysiajs/cron": "catalog:"
+    "@elysiajs/cron": "catalog:",
+    "@elysiajs/jwt": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
