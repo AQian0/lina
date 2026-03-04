@@ -1,25 +1,25 @@
 {
   "name": "backend",
   "version": "0.0.1",
+  "module": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "elysia": "catalog:",
     "@elysiajs/bearer": "catalog:",
     "@elysiajs/cors": "catalog:",
     "@elysiajs/cron": "catalog:",
+    "@elysiajs/eden": "catalog:",
     "@elysiajs/jwt": "catalog:",
     "@elysiajs/openapi": "catalog:",
-    "@elysiajs/eden": "catalog:",
-    "drizzle-orm": "catalog:",
     "drizzle-kit": "catalog:",
-    "uuid": "catalog:",
-    "nanoid": "catalog:"
+    "drizzle-orm": "catalog:",
+    "elysia": "catalog:",
+    "nanoid": "catalog:",
+    "uuid": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
-  },
-  "module": "src/index.ts"
+  }
 }

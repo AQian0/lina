@@ -1,9 +1,10 @@
 {
   "name": "lina",
-  "type": "module",
   "private": true,
   "workspaces": {
-    "packages": ["packages/*"],
+    "packages": [
+      "packages/*"
+    ],
     "catalog": {
       "@types/bun": "latest",
       "typescript": "^6.0.0-beta",
@@ -19,5 +20,6 @@
       "uuid": "^13.0.0",
       "nanoid": "^5.1.6"
     }
-  }
+  },
+  "type": "module"
 }
