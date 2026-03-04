@@ -7,9 +7,9 @@
     },
     "packages/backend": {
       "name": "backend",
-      "version": "1.0.50",
+      "version": "0.0.1",
       "dependencies": {
-        "elysia": "latest",
+        "elysia": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -18,6 +18,7 @@
   },
   "catalog": {
     "@types/bun": "latest",
+    "elysia": "latest",
     "typescript": "^6.0.0-beta",
   },
   "packages": {
