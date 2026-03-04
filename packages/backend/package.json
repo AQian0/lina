@@ -6,7 +6,13 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "elysia": "catalog:"
+    "elysia": "catalog:",
+    "@elysiajs/bearer": "catalog:",
+    "@elysiajs/cors": "catalog:",
+    "@elysiajs/cron": "catalog:",
+    "@elysiajs/jwt": "catalog:",
+    "@elysiajs/openapi": "catalog:",
+    "@elysiajs/eden": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
