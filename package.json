@@ -7,7 +7,8 @@
     "catalog": {
       "@types/bun": "latest",
       "typescript": "^6.0.0-beta",
-      "elysia": "latest"
+      "elysia": "latest",
+      "@elysiajs/bearer": "^1.4.3"
     }
   }
 }

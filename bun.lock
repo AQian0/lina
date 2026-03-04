@@ -9,6 +9,7 @@
       "name": "backend",
       "version": "0.0.1",
       "dependencies": {
+        "@elysiajs/bearer": "catalog:",
         "elysia": "catalog:",
       },
       "devDependencies": {
@@ -17,12 +18,15 @@
     },
   },
   "catalog": {
+    "@elysiajs/bearer": "^1.4.3",
     "@types/bun": "latest",
     "elysia": "latest",
     "typescript": "^6.0.0-beta",
   },
   "packages": {
     "@borewit/text-codec": ["@borewit/text-codec@0.2.1", "", {}, "sha512-k7vvKPbf7J2fZ5klGRD9AeKfUvojuZIQ3BT5u7Jfv+puwXkUBUT5PVyMDfJZpy30CBDXGMgw7fguK/lpOMBvgw=="],
+
+    "@elysiajs/bearer": ["@elysiajs/bearer@1.4.3", "", { "peerDependencies": { "elysia": ">= 1.4.3" } }, "sha512-UWJ94jGGOzSlD3CCspC11/vFGKwy6RI9QvaZVPzlSu1Wxp/pKmOhKA+R2ppfbluMHXfxcc2xgK3x4+uuCML7GA=="],
 
     "@sinclair/typebox": ["@sinclair/typebox@0.34.48", "", {}, "sha512-kKJTNuK3AQOrgjjotVxMrCn1sUJwM76wMszfq1kdU4uYVJjvEWuFQ6HgvLt4Xz3fSmZlTOxJ/Ie13KnIcWQXFA=="],
 
