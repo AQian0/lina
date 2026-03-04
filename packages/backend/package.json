@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "elysia": "catalog:",
-    "@elysiajs/bearer": "catalog:"
+    "@elysiajs/bearer": "catalog:",
+    "@elysiajs/cors": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
