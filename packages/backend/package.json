@@ -12,7 +12,9 @@
     "@elysiajs/cron": "catalog:",
     "@elysiajs/jwt": "catalog:",
     "@elysiajs/openapi": "catalog:",
-    "@elysiajs/eden": "catalog:"
+    "@elysiajs/eden": "catalog:",
+    "drizzle-orm": "catalog:",
+    "drizzle-kit": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
