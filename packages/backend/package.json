@@ -14,7 +14,9 @@
     "@elysiajs/openapi": "catalog:",
     "@elysiajs/eden": "catalog:",
     "drizzle-orm": "catalog:",
-    "drizzle-kit": "catalog:"
+    "drizzle-kit": "catalog:",
+    "uuid": "catalog:",
+    "nanoid": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
