@@ -11,7 +11,8 @@
     "@elysiajs/cors": "catalog:",
     "@elysiajs/cron": "catalog:",
     "@elysiajs/jwt": "catalog:",
-    "@elysiajs/openapi": "catalog:"
+    "@elysiajs/openapi": "catalog:",
+    "@elysiajs/eden": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
