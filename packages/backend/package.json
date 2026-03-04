@@ -10,7 +10,8 @@
     "@elysiajs/bearer": "catalog:",
     "@elysiajs/cors": "catalog:",
     "@elysiajs/cron": "catalog:",
-    "@elysiajs/jwt": "catalog:"
+    "@elysiajs/jwt": "catalog:",
+    "@elysiajs/openapi": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
