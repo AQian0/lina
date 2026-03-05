@@ -18,7 +18,8 @@
     "elysia": "catalog:",
     "nanoid": "catalog:",
     "uuid": "catalog:",
-    "valibot": "catalog:"
+    "valibot": "catalog:",
+    "ts-pattern": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
