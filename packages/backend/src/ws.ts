@@ -94,6 +94,7 @@ const connections = new Map<string, ConnectionState>();
 const resolveTopic = (ws: { remoteAddress: string }, topic: Topic): string =>
   match(topic)
     .with({ type: "private" }, () => `private:${ws.remoteAddress}`)
+    .with({ type: "group" }, ({ groupId }) => `group:${groupId}`)
     .exhaustive();
 
 export const ws = new Elysia().group("/ws", (app) =>
@@ -133,7 +134,7 @@ export const ws = new Elysia().group("/ws", (app) =>
           ws.publish(`private:${msg.toIp}`, JSON.stringify({ ...msg, fromIp: ws.remoteAddress }));
         })
         .with({ scene: "group" }, (msg) => {
-          console.log("[group]", msg);
+          ws.publish(`group:${msg.groupId}`, JSON.stringify({ ...msg, fromIp: ws.remoteAddress }));
         })
         .with({ scene: "system" }, (msg) => {
           console.log("[system]", msg);
