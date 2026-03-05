@@ -17,9 +17,9 @@
     "drizzle-orm": "catalog:",
     "elysia": "catalog:",
     "nanoid": "catalog:",
+    "ts-pattern": "catalog:",
     "uuid": "catalog:",
-    "valibot": "catalog:",
-    "ts-pattern": "catalog:"
+    "valibot": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
