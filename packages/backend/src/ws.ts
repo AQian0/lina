@@ -27,6 +27,14 @@ type TextMessage = v.InferOutput<typeof TextMessage>;
 type HeartbeatMessage = v.InferOutput<typeof HeartbeatMessage>;
 type ContentMessage = v.InferOutput<typeof ContentMessage>;
 
+const PrivateTopic = v.object({ type: v.literal("private") });
+const GroupTopic = v.object({ type: v.literal("group"), groupId: v.string() });
+const Topic = v.union([PrivateTopic, GroupTopic]);
+
+type PrivateTopic = v.InferOutput<typeof PrivateTopic>;
+type GroupTopic = v.InferOutput<typeof GroupTopic>;
+type Topic = v.InferOutput<typeof Topic>;
+
 const HeartbeatScene = v.object({
   scene: v.literal("heartbeat"),
   message: HeartbeatMessage,
@@ -51,18 +59,42 @@ const SystemScene = v.object({
   message: ContentMessage,
 });
 
+const SubscribeScene = v.object({
+  scene: v.literal("subscribe"),
+  topic: Topic,
+});
+
+const UnsubscribeScene = v.object({
+  scene: v.literal("unsubscribe"),
+  topic: Topic,
+});
+
 type HeartbeatScene = v.InferOutput<typeof HeartbeatScene>;
 type PrivateScene = v.InferOutput<typeof PrivateScene>;
 type GroupScene = v.InferOutput<typeof GroupScene>;
 type SystemScene = v.InferOutput<typeof SystemScene>;
+type SubscribeScene = v.InferOutput<typeof SubscribeScene>;
+type UnsubscribeScene = v.InferOutput<typeof UnsubscribeScene>;
 
-const Chat = v.union([HeartbeatScene, PrivateScene, GroupScene, SystemScene]);
+const Chat = v.union([
+  HeartbeatScene,
+  PrivateScene,
+  GroupScene,
+  SystemScene,
+  SubscribeScene,
+  UnsubscribeScene,
+]);
 type Chat = v.InferOutput<typeof Chat>;
 
 const HEARTBEAT_INTERVAL = 30_000;
 
 type ConnectionState = { alive: boolean; timer: ReturnType<typeof setInterval> };
 const connections = new Map<string, ConnectionState>();
+
+const resolveTopic = (ws: { remoteAddress: string }, topic: Topic): string =>
+  match(topic)
+    .with({ type: "private" }, () => `private:${ws.remoteAddress}`)
+    .exhaustive();
 
 export const ws = new Elysia().group("/ws", (app) =>
   app.ws("/chat", {
@@ -83,7 +115,6 @@ export const ws = new Elysia().group("/ws", (app) =>
         }, HEARTBEAT_INTERVAL),
       };
       connections.set(ws.id, state);
-      ws.subscribe(`private:${ws.remoteAddress}`);
     },
     message(ws, message) {
       match(message)
@@ -92,6 +123,12 @@ export const ws = new Elysia().group("/ws", (app) =>
           if (state) state.alive = true;
         })
         .with({ scene: "heartbeat", message: { type: "ping" } }, () => {})
+        .with({ scene: "subscribe" }, (msg) => {
+          ws.subscribe(resolveTopic(ws, msg.topic));
+        })
+        .with({ scene: "unsubscribe" }, (msg) => {
+          ws.unsubscribe(resolveTopic(ws, msg.topic));
+        })
         .with({ scene: "private" }, (msg) => {
           ws.publish(`private:${msg.toIp}`, JSON.stringify({ ...msg, fromIp: ws.remoteAddress }));
         })
@@ -109,7 +146,6 @@ export const ws = new Elysia().group("/ws", (app) =>
         clearInterval(state.timer);
         connections.delete(ws.id);
       }
-      ws.unsubscribe(`private:${ws.remoteAddress}`);
     },
   }),
 );
