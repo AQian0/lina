@@ -83,6 +83,7 @@ export const ws = new Elysia().group("/ws", (app) =>
         }, HEARTBEAT_INTERVAL),
       };
       connections.set(ws.id, state);
+      ws.subscribe(`private:${ws.remoteAddress}`);
     },
     message(ws, message) {
       match(message)
@@ -90,10 +91,9 @@ export const ws = new Elysia().group("/ws", (app) =>
           const state = connections.get(ws.id);
           if (state) state.alive = true;
         })
-        .with({ scene: "heartbeat", message: { type: "ping" } }, () => {
-        })
+        .with({ scene: "heartbeat", message: { type: "ping" } }, () => {})
         .with({ scene: "private" }, (msg) => {
-          console.log("[private]", msg);
+          ws.publish(`private:${msg.toIp}`, JSON.stringify({ ...msg, fromIp: ws.remoteAddress }));
         })
         .with({ scene: "group" }, (msg) => {
           console.log("[group]", msg);
@@ -109,6 +109,7 @@ export const ws = new Elysia().group("/ws", (app) =>
         clearInterval(state.timer);
         connections.delete(ws.id);
       }
+      ws.unsubscribe(`private:${ws.remoteAddress}`);
     },
   }),
 );
