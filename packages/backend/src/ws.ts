@@ -2,29 +2,15 @@ import Elysia from "elysia";
 import { match } from "ts-pattern";
 import * as v from "valibot";
 
-const PingMessage = v.object({
-  type: v.literal("ping"),
-  timestamp: v.pipe(v.string(), v.isoTimestamp()),
-});
-
-const PongMessage = v.object({
-  type: v.literal("pong"),
-  timestamp: v.pipe(v.string(), v.isoTimestamp()),
-});
-
 const TextMessage = v.object({
   type: v.literal("text"),
   timestamp: v.pipe(v.string(), v.isoTimestamp()),
   content: v.string(),
 });
 
-const HeartbeatMessage = v.union([PingMessage, PongMessage]);
 const ContentMessage = v.union([TextMessage]);
 
-type PingMessage = v.InferOutput<typeof PingMessage>;
-type PongMessage = v.InferOutput<typeof PongMessage>;
 type TextMessage = v.InferOutput<typeof TextMessage>;
-type HeartbeatMessage = v.InferOutput<typeof HeartbeatMessage>;
 type ContentMessage = v.InferOutput<typeof ContentMessage>;
 
 const PrivateTopic = v.object({ type: v.literal("private") });
@@ -34,11 +20,6 @@ const Topic = v.union([PrivateTopic, GroupTopic]);
 type PrivateTopic = v.InferOutput<typeof PrivateTopic>;
 type GroupTopic = v.InferOutput<typeof GroupTopic>;
 type Topic = v.InferOutput<typeof Topic>;
-
-const HeartbeatScene = v.object({
-  scene: v.literal("heartbeat"),
-  message: HeartbeatMessage,
-});
 
 const PrivateScene = v.object({
   scene: v.literal("private"),
@@ -69,7 +50,6 @@ const UnsubscribeScene = v.object({
   topic: Topic,
 });
 
-type HeartbeatScene = v.InferOutput<typeof HeartbeatScene>;
 type PrivateScene = v.InferOutput<typeof PrivateScene>;
 type GroupScene = v.InferOutput<typeof GroupScene>;
 type SystemScene = v.InferOutput<typeof SystemScene>;
@@ -77,7 +57,6 @@ type SubscribeScene = v.InferOutput<typeof SubscribeScene>;
 type UnsubscribeScene = v.InferOutput<typeof UnsubscribeScene>;
 
 const Chat = v.union([
-  HeartbeatScene,
   PrivateScene,
   GroupScene,
   SystemScene,
@@ -88,7 +67,7 @@ type Chat = v.InferOutput<typeof Chat>;
 
 const HEARTBEAT_INTERVAL = 30_000;
 
-type ConnectionState = { alive: boolean; timer: ReturnType<typeof setInterval> };
+type ConnectionState = { timer: ReturnType<typeof setInterval> };
 const connections = new Map<string, ConnectionState>();
 
 const resolveTopic = (clientIp: string, topic: Topic): string =>
@@ -108,30 +87,13 @@ export const ws = new Elysia()
   .group("/ws", (app) =>
     app.ws("/chat", {
       body: Chat,
+      idleTimeout: HEARTBEAT_INTERVAL / 1000 * 2,
       open(ws) {
-        const state: ConnectionState = {
-          alive: true,
-          timer: setInterval(() => {
-            if (!state.alive) {
-              ws.close();
-              return;
-            }
-            state.alive = false;
-            ws.send({
-              scene: "heartbeat",
-              message: { type: "ping", timestamp: new Date().toISOString() },
-            });
-          }, HEARTBEAT_INTERVAL),
-        };
-        connections.set(ws.id, state);
+        const timer = setInterval(() => ws.ping(), HEARTBEAT_INTERVAL);
+        connections.set(ws.id, { timer });
       },
       message(ws, message) {
         match(message)
-          .with({ scene: "heartbeat", message: { type: "pong" } }, () => {
-            const state = connections.get(ws.id);
-            if (state) state.alive = true;
-          })
-          .with({ scene: "heartbeat", message: { type: "ping" } }, () => {})
           .with({ scene: "subscribe" }, (msg) => {
             ws.subscribe(resolveTopic(ws.data.clientIp, msg.topic));
           })
