@@ -35,7 +35,9 @@
       "vitest": "^4.0.18",
       "npm-run-all2": "^8.0.4",
       "oxlint": "~1.50.0",
-      "oxfmt": "^0.35.0"
+      "oxfmt": "^0.35.0",
+      "tailwindcss": "^4.2.1",
+      "@nuxt/ui": "^4.5.1"
     }
   },
   "type": "module",

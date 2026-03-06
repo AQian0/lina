@@ -15,8 +15,10 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+    "@nuxt/ui": "catalog:",
     "nanoid": "catalog:",
     "pinia": "catalog:",
+    "tailwindcss": "catalog:",
     "ts-pattern": "catalog:",
     "uuid": "catalog:",
     "valibot": "catalog:",
