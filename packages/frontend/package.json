@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@nuxt/ui": "catalog:",
+    "@vueuse/core": "catalog:",
     "nanoid": "catalog:",
     "pinia": "catalog:",
     "tailwindcss": "catalog:",
