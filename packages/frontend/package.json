@@ -15,8 +15,11 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+    "@nuxt/ui": "catalog:",
+    "@vueuse/core": "catalog:",
     "nanoid": "catalog:",
     "pinia": "catalog:",
+    "tailwindcss": "catalog:",
     "ts-pattern": "catalog:",
     "uuid": "catalog:",
     "valibot": "catalog:",
@@ -26,7 +29,6 @@
   "devDependencies": {
     "@tsconfig/node24": "catalog:",
     "@types/bun": "catalog:",
-    "@types/jsdom": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "@vue/test-utils": "catalog:",
     "@vue/tsconfig": "catalog:",
