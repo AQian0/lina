@@ -19,7 +19,8 @@
     "nanoid": "catalog:",
     "ts-pattern": "catalog:",
     "uuid": "catalog:",
-    "valibot": "catalog:"
+    "valibot": "catalog:",
+    "@logtape/logtape": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
