@@ -15,6 +15,7 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+    "@elysiajs/eden": "catalog:",
     "@nuxt/ui": "catalog:",
     "@vueuse/core": "catalog:",
     "nanoid": "catalog:",

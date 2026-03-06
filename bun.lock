@@ -32,6 +32,7 @@
       "name": "frontend",
       "version": "0.0.0",
       "dependencies": {
+        "@elysiajs/eden": "catalog:",
         "@nuxt/ui": "catalog:",
         "@vueuse/core": "catalog:",
         "nanoid": "catalog:",
