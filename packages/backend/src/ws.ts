@@ -42,14 +42,14 @@ const HeartbeatScene = v.object({
 
 const PrivateScene = v.object({
   scene: v.literal("private"),
-  fromIp: v.pipe(v.string(), v.ip()),
+  fromIp: v.optional(v.pipe(v.string(), v.ip())),
   toIp: v.pipe(v.string(), v.ip()),
   message: ContentMessage,
 });
 
 const GroupScene = v.object({
   scene: v.literal("group"),
-  fromIp: v.pipe(v.string(), v.ip()),
+  fromIp: v.optional(v.pipe(v.string(), v.ip())),
   groupId: v.string(),
   message: ContentMessage,
 });
@@ -91,62 +91,73 @@ const HEARTBEAT_INTERVAL = 30_000;
 type ConnectionState = { alive: boolean; timer: ReturnType<typeof setInterval> };
 const connections = new Map<string, ConnectionState>();
 
-const resolveTopic = (ws: { remoteAddress: string }, topic: Topic): string =>
+const resolveTopic = (clientIp: string, topic: Topic): string =>
   match(topic)
-    .with({ type: "private" }, () => `private:${ws.remoteAddress}`)
+    .with({ type: "private" }, () => `private:${clientIp}`)
     .with({ type: "group" }, ({ groupId }) => `group:${groupId}`)
     .exhaustive();
 
-export const ws = new Elysia().group("/ws", (app) =>
-  app.ws("/chat", {
-    body: Chat,
-    open(ws) {
-      const state: ConnectionState = {
-        alive: true,
-        timer: setInterval(() => {
-          if (!state.alive) {
-            ws.close();
-            return;
-          }
-          state.alive = false;
-          ws.send({
-            scene: "heartbeat",
-            message: { type: "ping", timestamp: new Date().toISOString() },
-          });
-        }, HEARTBEAT_INTERVAL),
-      };
-      connections.set(ws.id, state);
-    },
-    message(ws, message) {
-      match(message)
-        .with({ scene: "heartbeat", message: { type: "pong" } }, () => {
-          const state = connections.get(ws.id);
-          if (state) state.alive = true;
-        })
-        .with({ scene: "heartbeat", message: { type: "ping" } }, () => {})
-        .with({ scene: "subscribe" }, (msg) => {
-          ws.subscribe(resolveTopic(ws, msg.topic));
-        })
-        .with({ scene: "unsubscribe" }, (msg) => {
-          ws.unsubscribe(resolveTopic(ws, msg.topic));
-        })
-        .with({ scene: "private" }, (msg) => {
-          ws.publish(`private:${msg.toIp}`, JSON.stringify({ ...msg, fromIp: ws.remoteAddress }));
-        })
-        .with({ scene: "group" }, (msg) => {
-          ws.publish(`group:${msg.groupId}`, JSON.stringify({ ...msg, fromIp: ws.remoteAddress }));
-        })
-        .with({ scene: "system" }, (msg) => {
-          console.log("[system]", msg);
-        })
-        .exhaustive();
-    },
-    close(ws) {
-      const state = connections.get(ws.id);
-      if (state) {
-        clearInterval(state.timer);
-        connections.delete(ws.id);
-      }
-    },
-  }),
-);
+export const ws = new Elysia()
+  .derive({ as: "scoped" }, ({ request, server }) => ({
+    clientIp:
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+      request.headers.get("x-real-ip") ??
+      server?.requestIP(request)?.address ??
+      "unknown",
+  }))
+  .group("/ws", (app) =>
+    app.ws("/chat", {
+      body: Chat,
+      open(ws) {
+        const state: ConnectionState = {
+          alive: true,
+          timer: setInterval(() => {
+            if (!state.alive) {
+              ws.close();
+              return;
+            }
+            state.alive = false;
+            ws.send({
+              scene: "heartbeat",
+              message: { type: "ping", timestamp: new Date().toISOString() },
+            });
+          }, HEARTBEAT_INTERVAL),
+        };
+        connections.set(ws.id, state);
+      },
+      message(ws, message) {
+        match(message)
+          .with({ scene: "heartbeat", message: { type: "pong" } }, () => {
+            const state = connections.get(ws.id);
+            if (state) state.alive = true;
+          })
+          .with({ scene: "heartbeat", message: { type: "ping" } }, () => {})
+          .with({ scene: "subscribe" }, (msg) => {
+            ws.subscribe(resolveTopic(ws.data.clientIp, msg.topic));
+          })
+          .with({ scene: "unsubscribe" }, (msg) => {
+            ws.unsubscribe(resolveTopic(ws.data.clientIp, msg.topic));
+          })
+          .with({ scene: "private" }, (msg) => {
+            ws.publish(`private:${msg.toIp}`, JSON.stringify({ ...msg, fromIp: ws.data.clientIp }));
+          })
+          .with({ scene: "group" }, (msg) => {
+            ws.publish(
+              `group:${msg.groupId}`,
+              JSON.stringify({ ...msg, fromIp: ws.data.clientIp }),
+            );
+          })
+          .with({ scene: "system" }, (msg) => {
+            console.log("[system]", msg);
+          })
+          .exhaustive();
+      },
+      close(ws) {
+        const state = connections.get(ws.id);
+        if (state) {
+          clearInterval(state.timer);
+          connections.delete(ws.id);
+        }
+      },
+    }),
+  );
