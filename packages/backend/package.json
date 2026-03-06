@@ -13,14 +13,14 @@
     "@elysiajs/eden": "catalog:",
     "@elysiajs/jwt": "catalog:",
     "@elysiajs/openapi": "catalog:",
+    "@logtape/logtape": "catalog:",
     "drizzle-kit": "catalog:",
     "drizzle-orm": "catalog:",
     "elysia": "catalog:",
     "nanoid": "catalog:",
     "ts-pattern": "catalog:",
     "uuid": "catalog:",
-    "valibot": "catalog:",
-    "@logtape/logtape": "catalog:"
+    "valibot": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:"
