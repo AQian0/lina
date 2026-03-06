@@ -26,7 +26,6 @@
   "devDependencies": {
     "@tsconfig/node24": "catalog:",
     "@types/bun": "catalog:",
-    "@types/jsdom": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "@vue/test-utils": "catalog:",
     "@vue/tsconfig": "catalog:",
