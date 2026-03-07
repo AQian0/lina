@@ -7,6 +7,7 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
+    "@aqian0/shi-jian": "catalog:",
     "@elysiajs/bearer": "catalog:",
     "@elysiajs/cors": "catalog:",
     "@elysiajs/cron": "catalog:",
