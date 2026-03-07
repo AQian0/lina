@@ -20,6 +20,7 @@
     "@vueuse/core": "catalog:",
     "nanoid": "catalog:",
     "pinia": "catalog:",
+    "radashi": "catalog:",
     "tailwindcss": "catalog:",
     "ts-pattern": "catalog:",
     "uuid": "catalog:",
