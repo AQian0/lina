@@ -74,6 +74,7 @@
     "@vue/runtime-vapor": "beta",
     "@vue/server-renderer": "beta",
     "@vue/shared": "beta",
+    "typescript": "rc",
     "vue": "beta",
   },
   "catalog": {
@@ -101,7 +102,7 @@
     "pinia": "^3.0.4",
     "tailwindcss": "^4.2.1",
     "ts-pattern": "^5.9.0",
-    "typescript": "^6.0.0-beta",
+    "typescript": "rc",
     "uuid": "^13.0.0",
     "valibot": "^1.2.0",
     "vite": "beta",
@@ -1340,7 +1341,7 @@
 
     "type-level-regexp": ["type-level-regexp@0.1.17", "", {}, "sha512-wTk4DH3cxwk196uGLK/E9pE45aLfeKJacKmcEgEOA/q5dnPGNxXt0cfYdFxb57L+sEpf1oJH4Dnx/pnRcku9jg=="],
 
-    "typescript": ["typescript@6.0.0-dev.20260305", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-JCpaEoo18VAXaQRsvdMLhwExx3k8QoryqWFTJXIvl3zkyVr5Gybd9Ap8mLatOP1RGfiUSYA7cW/mISZGBoBrbw=="],
+    "typescript": ["typescript@6.0.1-rc", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-7XlzYb+p/7YxX6qSOzwB4mxVFRdAgWWkj1PgAZ+jzldeuFV6Z77vwFbNxHsUXAL/bhlWY2jCT8shLwDJR8337g=="],
 
     "uc.micro": ["uc.micro@2.1.0", "", {}, "sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A=="],
 
