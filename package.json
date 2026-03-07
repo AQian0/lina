@@ -39,7 +39,8 @@
       "tailwindcss": "^4.2.1",
       "@nuxt/ui": "^4.5.1",
       "@vueuse/core": "^14.2.1",
-      "radashi": "latest"
+      "radashi": "latest",
+      "@aqian0/shi-jian": "latest"
     }
   },
   "type": "module",

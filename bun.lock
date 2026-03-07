@@ -9,6 +9,7 @@
       "name": "backend",
       "version": "0.0.1",
       "dependencies": {
+        "@aqian0/shi-jian": "catalog:",
         "@elysiajs/bearer": "catalog:",
         "@elysiajs/cors": "catalog:",
         "@elysiajs/cron": "catalog:",
@@ -33,6 +34,7 @@
       "name": "frontend",
       "version": "0.0.0",
       "dependencies": {
+        "@aqian0/shi-jian": "catalog:",
         "@elysiajs/eden": "catalog:",
         "@nuxt/ui": "catalog:",
         "@vueuse/core": "catalog:",
@@ -80,6 +82,7 @@
     "vue": "beta",
   },
   "catalog": {
+    "@aqian0/shi-jian": "latest",
     "@elysiajs/bearer": "^1.4.3",
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/cron": "^1.4.1",
@@ -119,6 +122,8 @@
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
     "@antfu/install-pkg": ["@antfu/install-pkg@1.1.0", "", { "dependencies": { "package-manager-detector": "^1.3.0", "tinyexec": "^1.0.1" } }, "sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ=="],
+
+    "@aqian0/shi-jian": ["@aqian0/shi-jian@0.0.2", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-fX0FzWq5DcN2GcgHe1CV78EBjwa7jl7XYeVYFvk0HFCMX3FkPOfi98YBxIvnDdgMjW03KCpcO56gIqAvznpMQA=="],
 
     "@azure-rest/core-client": ["@azure-rest/core-client@2.5.1", "", { "dependencies": { "@azure/abort-controller": "^2.1.2", "@azure/core-auth": "^1.10.0", "@azure/core-rest-pipeline": "^1.22.0", "@azure/core-tracing": "^1.3.0", "@typespec/ts-http-runtime": "^0.3.0", "tslib": "^2.6.2" } }, "sha512-EHaOXW0RYDKS5CFffnixdyRPak5ytiCtU7uXDcP/uiY+A6jFRwNGzzJBiznkCzvi5EYpY+YWinieqHb0oY916A=="],
 
