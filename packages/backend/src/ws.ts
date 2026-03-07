@@ -56,14 +56,10 @@ type SystemScene = v.InferOutput<typeof SystemScene>;
 type SubscribeScene = v.InferOutput<typeof SubscribeScene>;
 type UnsubscribeScene = v.InferOutput<typeof UnsubscribeScene>;
 
-const Chat = v.union([
-  PrivateScene,
-  GroupScene,
-  SystemScene,
-  SubscribeScene,
-  UnsubscribeScene,
-]);
+const Chat = v.union([PrivateScene, GroupScene, SystemScene, SubscribeScene, UnsubscribeScene]);
 type Chat = v.InferOutput<typeof Chat>;
+const ServerEvent = v.union([PrivateScene, GroupScene]);
+type ServerEvent = v.InferOutput<typeof ServerEvent>;
 
 const HEARTBEAT_INTERVAL = 30_000;
 
@@ -87,7 +83,8 @@ export const ws = new Elysia()
   .group("/ws", (app) =>
     app.ws("/chat", {
       body: Chat,
-      idleTimeout: HEARTBEAT_INTERVAL / 1000 * 2,
+      response: ServerEvent,
+      idleTimeout: (HEARTBEAT_INTERVAL / 1000) * 2,
       open(ws) {
         const timer = setInterval(() => ws.ping(), HEARTBEAT_INTERVAL);
         connections.set(ws.id, { timer });
@@ -101,13 +98,10 @@ export const ws = new Elysia()
             ws.unsubscribe(resolveTopic(ws.data.clientIp, msg.topic));
           })
           .with({ scene: "private" }, (msg) => {
-            ws.publish(`private:${msg.toIp}`, JSON.stringify({ ...msg, fromIp: ws.data.clientIp }));
+            ws.publish(`private:${msg.toIp}`, { ...msg, fromIp: ws.data.clientIp });
           })
           .with({ scene: "group" }, (msg) => {
-            ws.publish(
-              `group:${msg.groupId}`,
-              JSON.stringify({ ...msg, fromIp: ws.data.clientIp }),
-            );
+            ws.publish(`group:${msg.groupId}`, { ...msg, fromIp: ws.data.clientIp });
           })
           .with({ scene: "system" }, (msg) => {
             console.log("[system]", msg);
