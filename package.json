@@ -8,7 +8,7 @@
     "catalog": {
       "@types/bun": "latest",
       "@tsconfig/node24": "^24.0.4",
-      "typescript": "^6.0.0-beta",
+      "typescript": "rc",
       "elysia": "latest",
       "@elysiajs/bearer": "^1.4.3",
       "@elysiajs/cors": "^1.4.1",
@@ -55,6 +55,7 @@
     "@vue/runtime-vapor": "beta",
     "@vue/server-renderer": "beta",
     "@vue/shared": "beta",
+    "typescript": "rc",
     "vue": "beta"
   }
 }
