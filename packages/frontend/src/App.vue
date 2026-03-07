@@ -58,7 +58,8 @@ import type { Backend } from "#backend";
 import { useScroll } from "@vueuse/core";
 import { nanoid } from "nanoid";
 import { ref, watch } from "vue";
-import { isEmpty } from "radashi";
+import { useRoute } from "vue-router";
+import { isEmpty, isString } from "radashi";
 import { format } from "@aqian0/shi-jian";
 
 type ChatMessage = {
@@ -73,6 +74,7 @@ type ChatMessage = {
   isMine: boolean;
 };
 
+const route = useRoute();
 const client = treaty<Backend>("localhost:3000");
 const chat = client.ws.chat.subscribe();
 const content = ref("");
@@ -92,6 +94,10 @@ watch(
 
 chat.on("open", () => {
   chat.send({ scene: "subscribe", topic: { type: "private" } });
+  const groupId = route.query.groupId;
+  if (!isEmpty(groupId) && isString(groupId)) {
+    chat.send({ scene: "subscribe", topic: { type: "group", groupId } });
+  }
 });
 
 chat.on("message", (e) => {
