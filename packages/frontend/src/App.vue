@@ -8,17 +8,17 @@
           <article
             v-for="msg in messages"
             :key="msg.id"
-            :class="['flex gap-2 items-end', msg.isMine ? 'flex-row-reverse' : 'flex-row']"
+            :class="['flex gap-2 items-end', msg.fromId === clientId ? 'flex-row-reverse' : 'flex-row']"
           >
-            <UAvatar :text="msg.isMine ? '我' : (msg.fromIp?.slice(-2) ?? '?')" size="sm" />
+            <UAvatar :text="msg.fromId === clientId ? '我' : msg.fromId.slice(-4)" size="sm" />
             <div
-              :class="['flex flex-col gap-1 max-w-[70%]', msg.isMine ? 'items-end' : 'items-start']"
+              :class="['flex flex-col gap-1 max-w-[70%]', msg.fromId === clientId ? 'items-end' : 'items-start']"
             >
-              <p v-if="!msg.isMine" class="text-xs text-muted px-1">{{ msg.fromIp }}</p>
+              <p v-if="msg.fromId !== clientId" class="text-xs text-muted px-1">{{ msg.fromId.slice(-8) }}</p>
               <div
                 :class="[
                   'px-3 py-2 rounded-2xl text-sm wrap-break-words',
-                  msg.isMine
+                  msg.fromId === clientId
                     ? 'bg-primary text-inverted rounded-br-sm'
                     : 'bg-default ring ring-default rounded-bl-sm',
                 ]"
@@ -65,18 +65,18 @@ import { format } from "@aqian0/shi-jian";
 type ChatMessage = {
   id: string;
   scene: "private" | "group";
-  fromIp: string | undefined;
+  fromId: string;
   message: {
     type: "text";
     timestamp: string;
     content: string;
   };
-  isMine: boolean;
 };
 
 const route = useRoute();
 const client = treaty<Backend>("localhost:3000");
 const chat = client.ws.chat.subscribe();
+const clientId = ref<string | null>(null);
 const content = ref("");
 const messages = ref<Array<ChatMessage>>([]);
 const messagesEl = ref<HTMLElement | null>(null);
@@ -102,29 +102,32 @@ chat.on("open", () => {
 
 chat.on("message", (e) => {
   const { data } = e;
+  if (data.scene === "connected") {
+    clientId.value = data.clientId;
+    return;
+  }
+  if (!data.fromId) return;
   messages.value.push({
     id: nanoid(),
     scene: data.scene,
-    fromIp: data.fromIp,
+    fromId: data.fromId,
     message: data.message,
-    isMine: false,
   });
 });
 
 const send = (): void => {
-  if (isEmpty(content.value)) return;
+  if (isEmpty(content.value) || clientId.value === null) return;
   const timestamp = new Date().toISOString();
   messages.value.push({
     id: nanoid(),
     scene: "private",
-    fromIp: undefined,
+    fromId: clientId.value,
     message: { type: "text", timestamp, content: content.value },
-    isMine: true,
   });
-  // TODO: real target IP
+  // TODO: real target ID
   chat.send({
     scene: "private",
-    toIp: "127.0.0.1",
+    toId: clientId.value,
     message: { type: "text", timestamp, content: content.value },
   });
   content.value = "";
