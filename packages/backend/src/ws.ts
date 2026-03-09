@@ -78,42 +78,41 @@ const resolveTopic = (clientId: string, topic: Topic): string =>
     .with({ type: "group" }, ({ groupId }) => `group:${groupId}`)
     .exhaustive();
 
-export const ws = new Elysia()
-  .group("/ws", (app) =>
-    app.ws("/chat", {
-      body: Chat,
-      response: ServerScene,
-      idleTimeout: (HEARTBEAT_INTERVAL / 1000) * 2,
-      open(ws) {
-        const timer = setInterval(() => ws.ping(), HEARTBEAT_INTERVAL);
-        connections.set(ws.id, { timer });
-        ws.send({ scene: "connected", clientId: ws.id });
-      },
-      message(ws, message) {
-        match(message)
-          .with({ scene: "subscribe" }, (msg) => {
-            ws.subscribe(resolveTopic(ws.id, msg.topic));
-          })
-          .with({ scene: "unsubscribe" }, (msg) => {
-            ws.unsubscribe(resolveTopic(ws.id, msg.topic));
-          })
-          .with({ scene: "private" }, (msg) => {
-            ws.publish(`private:${msg.toId}`, { ...msg, fromId: ws.id });
-          })
-          .with({ scene: "group" }, (msg) => {
-            ws.publish(`group:${msg.groupId}`, { ...msg, fromId: ws.id });
-          })
-          .with({ scene: "system" }, (msg) => {
-            console.log("[system]", msg);
-          })
-          .exhaustive();
-      },
-      close(ws) {
-        const state = connections.get(ws.id);
-        if (state) {
-          clearInterval(state.timer);
-          connections.delete(ws.id);
-        }
-      },
-    }),
-  );
+export const ws = new Elysia().group("/ws", (app) =>
+  app.ws("/chat", {
+    body: Chat,
+    response: ServerScene,
+    idleTimeout: (HEARTBEAT_INTERVAL / 1000) * 2,
+    open(ws) {
+      const timer = setInterval(() => ws.ping(), HEARTBEAT_INTERVAL);
+      connections.set(ws.id, { timer });
+      ws.send({ scene: "connected", clientId: ws.id });
+    },
+    message(ws, message) {
+      match(message)
+        .with({ scene: "subscribe" }, (msg) => {
+          ws.subscribe(resolveTopic(ws.id, msg.topic));
+        })
+        .with({ scene: "unsubscribe" }, (msg) => {
+          ws.unsubscribe(resolveTopic(ws.id, msg.topic));
+        })
+        .with({ scene: "private" }, (msg) => {
+          ws.publish(`private:${msg.toId}`, { ...msg, fromId: ws.id });
+        })
+        .with({ scene: "group" }, (msg) => {
+          ws.publish(`group:${msg.groupId}`, { ...msg, fromId: ws.id });
+        })
+        .with({ scene: "system" }, (msg) => {
+          console.log("[system]", msg);
+        })
+        .exhaustive();
+    },
+    close(ws) {
+      const state = connections.get(ws.id);
+      if (state) {
+        clearInterval(state.timer);
+        connections.delete(ws.id);
+      }
+    },
+  }),
+);
