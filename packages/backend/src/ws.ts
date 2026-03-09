@@ -55,12 +55,12 @@ const UnsubscribeScene = v.object({
   topic: Topic,
 });
 
-type PrivateScene = v.InferOutput<typeof PrivateScene>;
-type GroupScene = v.InferOutput<typeof GroupScene>;
+export type PrivateScene = v.InferOutput<typeof PrivateScene>;
+export type GroupScene = v.InferOutput<typeof GroupScene>;
 type SystemScene = v.InferOutput<typeof SystemScene>;
 type SubscribeScene = v.InferOutput<typeof SubscribeScene>;
 type UnsubscribeScene = v.InferOutput<typeof UnsubscribeScene>;
-type ConnectedScene = v.InferOutput<typeof ConnectedScene>;
+export type ConnectedScene = v.InferOutput<typeof ConnectedScene>;
 
 const Chat = v.union([PrivateScene, GroupScene, SystemScene, SubscribeScene, UnsubscribeScene]);
 type Chat = v.InferOutput<typeof Chat>;
