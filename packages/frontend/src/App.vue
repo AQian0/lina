@@ -71,16 +71,11 @@ import { useRoute } from "vue-router";
 import { isEmpty, isString } from "radashi";
 import { format } from "@aqian0/shi-jian";
 
-type ChatMessage = {
-  id: string;
-  scene: "private" | "group";
-  fromId: string;
-  message: {
-    type: "text";
-    timestamp: string;
-    content: string;
-  };
-};
+import type { PrivateScene, GroupScene } from "#backend/ws";
+
+type PrivateChatMessage = Omit<PrivateScene, "fromId"> & { id: string; fromId: string };
+type GroupChatMessage = Omit<GroupScene, "fromId"> & { id: string; fromId: string };
+type ChatMessage = PrivateChatMessage | GroupChatMessage;
 
 const route = useRoute();
 const client = treaty<Backend>("localhost:3000");
@@ -111,17 +106,19 @@ chat.on("open", () => {
 
 chat.on("message", (e) => {
   const { data } = e;
-  if (data.scene === "connected") {
-    clientId.value = data.clientId;
-    return;
-  }
-  if (!data.fromId) return;
-  messages.value.push({
-    id: nanoid(),
-    scene: data.scene,
-    fromId: data.fromId,
-    message: data.message,
-  });
+  match(data)
+    .with({ scene: "connected" }, ({ clientId: id }) => {
+      clientId.value = id;
+    })
+    .with({ scene: "private" }, (msg) => {
+      if (!msg.fromId) return;
+      messages.value.push({ id: nanoid(), ...msg, fromId: msg.fromId });
+    })
+    .with({ scene: "group" }, (msg) => {
+      if (!msg.fromId) return;
+      messages.value.push({ id: nanoid(), ...msg, fromId: msg.fromId });
+    })
+    .exhaustive();
 });
 
 const send = (): void => {
@@ -129,27 +126,27 @@ const send = (): void => {
   const timestamp = new Date().toISOString();
   const groupId = route.query.groupId;
   const scene = !isEmpty(groupId) && isString(groupId) ? "group" : "private";
-  messages.value.push({
-    id: nanoid(),
-    scene,
-    fromId: clientId.value,
-    message: { type: "text", timestamp, content: content.value },
-  });
+  const msg = { type: "text" as const, timestamp, content: content.value };
   match(scene)
     .with("group", () => {
-      chat.send({
+      messages.value.push({
+        id: nanoid(),
         scene: "group",
+        fromId: clientId.value!,
         groupId: groupId as string,
-        message: { type: "text", timestamp, content: content.value },
+        message: msg,
       });
+      chat.send({ scene: "group", groupId: groupId as string, message: msg });
     })
     .with("private", () => {
-      // TODO: real target ID
-      chat.send({
+      messages.value.push({
+        id: nanoid(),
         scene: "private",
+        fromId: clientId.value!,
         toId: clientId.value!,
-        message: { type: "text", timestamp, content: content.value },
-      });
+        message: msg,
+      }); // TODO: real target ID
+      chat.send({ scene: "private", toId: clientId.value!, message: msg });
     })
     .exhaustive();
   content.value = "";
