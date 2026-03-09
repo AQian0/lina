@@ -8,13 +8,21 @@
           <article
             v-for="msg in messages"
             :key="msg.id"
-            :class="['flex gap-2 items-end', msg.fromId === clientId ? 'flex-row-reverse' : 'flex-row']"
+            :class="[
+              'flex gap-2 items-end',
+              msg.fromId === clientId ? 'flex-row-reverse' : 'flex-row',
+            ]"
           >
             <UAvatar :text="msg.fromId === clientId ? '我' : msg.fromId.slice(-4)" size="sm" />
             <div
-              :class="['flex flex-col gap-1 max-w-[70%]', msg.fromId === clientId ? 'items-end' : 'items-start']"
+              :class="[
+                'flex flex-col gap-1 max-w-[70%]',
+                msg.fromId === clientId ? 'items-end' : 'items-start',
+              ]"
             >
-              <p v-if="msg.fromId !== clientId" class="text-xs text-muted px-1">{{ msg.fromId.slice(-8) }}</p>
+              <p v-if="msg.fromId !== clientId" class="text-xs text-muted px-1">
+                {{ msg.fromId.slice(-8) }}
+              </p>
               <div
                 :class="[
                   'px-3 py-2 rounded-2xl text-sm wrap-break-words',
@@ -57,6 +65,7 @@ import { treaty } from "@elysiajs/eden";
 import type { Backend } from "#backend";
 import { useScroll } from "@vueuse/core";
 import { nanoid } from "nanoid";
+import { match } from "ts-pattern";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { isEmpty, isString } from "radashi";
@@ -118,18 +127,31 @@ chat.on("message", (e) => {
 const send = (): void => {
   if (isEmpty(content.value) || clientId.value === null) return;
   const timestamp = new Date().toISOString();
+  const groupId = route.query.groupId;
+  const scene = !isEmpty(groupId) && isString(groupId) ? "group" : "private";
   messages.value.push({
     id: nanoid(),
-    scene: "private",
+    scene,
     fromId: clientId.value,
     message: { type: "text", timestamp, content: content.value },
   });
-  // TODO: real target ID
-  chat.send({
-    scene: "private",
-    toId: clientId.value,
-    message: { type: "text", timestamp, content: content.value },
-  });
+  match(scene)
+    .with("group", () => {
+      chat.send({
+        scene: "group",
+        groupId: groupId as string,
+        message: { type: "text", timestamp, content: content.value },
+      });
+    })
+    .with("private", () => {
+      // TODO: real target ID
+      chat.send({
+        scene: "private",
+        toId: clientId.value!,
+        message: { type: "text", timestamp, content: content.value },
+      });
+    })
+    .exhaustive();
   content.value = "";
 };
 </script>
