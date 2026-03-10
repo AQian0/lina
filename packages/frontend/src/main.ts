@@ -5,7 +5,10 @@ import { createPinia } from "pinia";
 import ui from "@nuxt/ui/vue-plugin";
 
 import App from "./App.vue";
+import { setupLogger } from "./logger";
 import router from "./router";
+
+await setupLogger();
 
 const app = createApp(App);
 

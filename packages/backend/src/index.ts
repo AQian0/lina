@@ -1,5 +1,8 @@
 import { Elysia } from "elysia";
+import { logger, setupLogger } from "./logger";
 import { ws } from "./ws";
+
+await setupLogger();
 
 const backend = new Elysia()
   .use(ws)
@@ -8,4 +11,4 @@ const backend = new Elysia()
 
 export type Backend = typeof backend;
 
-console.log(`🦊 Elysia is running at ${backend.server?.hostname}:${backend.server?.port}`);
+logger.info`🦊 Elysia is running at ${backend.server?.hostname}:${backend.server?.port}`;

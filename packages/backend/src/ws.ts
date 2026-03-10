@@ -1,6 +1,7 @@
 import Elysia from "elysia";
 import { match } from "ts-pattern";
 import * as v from "valibot";
+import { logger } from "./logger";
 
 const TextMessage = v.object({
   type: v.literal("text"),
@@ -87,23 +88,28 @@ export const ws = new Elysia().group("/ws", (app) =>
       const timer = setInterval(() => ws.ping(), HEARTBEAT_INTERVAL);
       connections.set(ws.id, { timer });
       ws.send({ scene: "connected", clientId: ws.id });
+      logger.info`WS connected: ${ws.id} (total: ${connections.size})`;
     },
     message(ws, message) {
       match(message)
         .with({ scene: "subscribe" }, (msg) => {
           ws.subscribe(resolveTopic(ws.id, msg.topic));
+          logger.debug`${ws.id} subscribed to ${resolveTopic(ws.id, msg.topic)}`;
         })
         .with({ scene: "unsubscribe" }, (msg) => {
           ws.unsubscribe(resolveTopic(ws.id, msg.topic));
+          logger.debug`${ws.id} unsubscribed from ${resolveTopic(ws.id, msg.topic)}`;
         })
         .with({ scene: "private" }, (msg) => {
           ws.publish(`private:${msg.toId}`, { ...msg, fromId: ws.id });
+          logger.debug`private: ${ws.id} → ${msg.toId}`;
         })
         .with({ scene: "group" }, (msg) => {
           ws.publish(`group:${msg.groupId}`, { ...msg, fromId: ws.id });
+          logger.debug`group(${msg.groupId}): ${ws.id}`;
         })
         .with({ scene: "system" }, (msg) => {
-          console.log("[system]", msg);
+          logger.info`system message: ${msg.message.content}`;
         })
         .exhaustive();
     },
@@ -113,6 +119,7 @@ export const ws = new Elysia().group("/ws", (app) =>
         clearInterval(state.timer);
         connections.delete(ws.id);
       }
+      logger.info`WS disconnected: ${ws.id} (total: ${connections.size})`;
     },
   }),
 );

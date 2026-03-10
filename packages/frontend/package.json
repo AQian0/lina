@@ -17,6 +17,7 @@
   "dependencies": {
     "@aqian0/shi-jian": "catalog:",
     "@elysiajs/eden": "catalog:",
+    "@logtape/logtape": "catalog:",
     "@nuxt/ui": "catalog:",
     "@vueuse/core": "catalog:",
     "nanoid": "catalog:",
