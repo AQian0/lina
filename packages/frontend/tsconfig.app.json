@@ -19,6 +19,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "#build/ui/*": ["./node_modules/.nuxt-ui/ui/*"],
+      "#backend": ["../backend/src/index.ts"],
       "#backend/*": ["../backend/src/*"]
     },
 

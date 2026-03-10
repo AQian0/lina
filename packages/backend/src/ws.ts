@@ -23,16 +23,21 @@ type Topic = v.InferOutput<typeof Topic>;
 
 const PrivateScene = v.object({
   scene: v.literal("private"),
-  fromIp: v.optional(v.pipe(v.string(), v.ip())),
-  toIp: v.pipe(v.string(), v.ip()),
+  fromId: v.optional(v.string()),
+  toId: v.string(),
   message: ContentMessage,
 });
 
 const GroupScene = v.object({
   scene: v.literal("group"),
-  fromIp: v.optional(v.pipe(v.string(), v.ip())),
+  fromId: v.optional(v.string()),
   groupId: v.string(),
   message: ContentMessage,
+});
+
+const ConnectedScene = v.object({
+  scene: v.literal("connected"),
+  clientId: v.string(),
 });
 
 const SystemScene = v.object({
@@ -50,70 +55,64 @@ const UnsubscribeScene = v.object({
   topic: Topic,
 });
 
-type PrivateScene = v.InferOutput<typeof PrivateScene>;
-type GroupScene = v.InferOutput<typeof GroupScene>;
+export type PrivateScene = v.InferOutput<typeof PrivateScene>;
+export type GroupScene = v.InferOutput<typeof GroupScene>;
 type SystemScene = v.InferOutput<typeof SystemScene>;
 type SubscribeScene = v.InferOutput<typeof SubscribeScene>;
 type UnsubscribeScene = v.InferOutput<typeof UnsubscribeScene>;
+export type ConnectedScene = v.InferOutput<typeof ConnectedScene>;
 
 const Chat = v.union([PrivateScene, GroupScene, SystemScene, SubscribeScene, UnsubscribeScene]);
 type Chat = v.InferOutput<typeof Chat>;
-const ServerEvent = v.union([PrivateScene, GroupScene]);
-type ServerEvent = v.InferOutput<typeof ServerEvent>;
+const ServerScene = v.union([ConnectedScene, PrivateScene, GroupScene]);
+type ServerScene = v.InferOutput<typeof ServerScene>;
 
 const HEARTBEAT_INTERVAL = 30_000;
 
 type ConnectionState = { timer: ReturnType<typeof setInterval> };
 const connections = new Map<string, ConnectionState>();
 
-const resolveTopic = (clientIp: string, topic: Topic): string =>
+const resolveTopic = (clientId: string, topic: Topic): string =>
   match(topic)
-    .with({ type: "private" }, () => `private:${clientIp}`)
+    .with({ type: "private" }, () => `private:${clientId}`)
     .with({ type: "group" }, ({ groupId }) => `group:${groupId}`)
     .exhaustive();
 
-export const ws = new Elysia()
-  .derive({ as: "scoped" }, ({ request, server }) => ({
-    clientIp:
-      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-      request.headers.get("x-real-ip") ??
-      server?.requestIP(request)?.address ??
-      "unknown",
-  }))
-  .group("/ws", (app) =>
-    app.ws("/chat", {
-      body: Chat,
-      response: ServerEvent,
-      idleTimeout: (HEARTBEAT_INTERVAL / 1000) * 2,
-      open(ws) {
-        const timer = setInterval(() => ws.ping(), HEARTBEAT_INTERVAL);
-        connections.set(ws.id, { timer });
-      },
-      message(ws, message) {
-        match(message)
-          .with({ scene: "subscribe" }, (msg) => {
-            ws.subscribe(resolveTopic(ws.data.clientIp, msg.topic));
-          })
-          .with({ scene: "unsubscribe" }, (msg) => {
-            ws.unsubscribe(resolveTopic(ws.data.clientIp, msg.topic));
-          })
-          .with({ scene: "private" }, (msg) => {
-            ws.publish(`private:${msg.toIp}`, { ...msg, fromIp: ws.data.clientIp });
-          })
-          .with({ scene: "group" }, (msg) => {
-            ws.publish(`group:${msg.groupId}`, { ...msg, fromIp: ws.data.clientIp });
-          })
-          .with({ scene: "system" }, (msg) => {
-            console.log("[system]", msg);
-          })
-          .exhaustive();
-      },
-      close(ws) {
-        const state = connections.get(ws.id);
-        if (state) {
-          clearInterval(state.timer);
-          connections.delete(ws.id);
-        }
-      },
-    }),
-  );
+export const ws = new Elysia().group("/ws", (app) =>
+  app.ws("/chat", {
+    body: Chat,
+    response: ServerScene,
+    idleTimeout: (HEARTBEAT_INTERVAL / 1000) * 2,
+    open(ws) {
+      const timer = setInterval(() => ws.ping(), HEARTBEAT_INTERVAL);
+      connections.set(ws.id, { timer });
+      ws.send({ scene: "connected", clientId: ws.id });
+    },
+    message(ws, message) {
+      match(message)
+        .with({ scene: "subscribe" }, (msg) => {
+          ws.subscribe(resolveTopic(ws.id, msg.topic));
+        })
+        .with({ scene: "unsubscribe" }, (msg) => {
+          ws.unsubscribe(resolveTopic(ws.id, msg.topic));
+        })
+        .with({ scene: "private" }, (msg) => {
+          ws.publish(`private:${msg.toId}`, { ...msg, fromId: ws.id });
+        })
+        .with({ scene: "group" }, (msg) => {
+          ws.publish(`group:${msg.groupId}`, { ...msg, fromId: ws.id });
+        })
+        .with({ scene: "system" }, (msg) => {
+          console.log("[system]", msg);
+        })
+        .exhaustive();
+    },
+    close(ws) {
+      const state = connections.get(ws.id);
+      if (state) {
+        clearInterval(state.timer);
+        connections.delete(ws.id);
+      }
+    },
+  }),
+);
